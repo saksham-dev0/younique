@@ -61,7 +61,7 @@ export class AdminService {
       });
 
       return { users: usersWithStatus, error: null };
-    } catch (error) {
+    } catch {
       return { users: [], error: 'Failed to fetch users' };
     }
   }
@@ -140,13 +140,13 @@ export class AdminService {
         },
         error: null
       };
-    } catch (error) {
+    } catch {
       return { result: null, error: 'Failed to fetch user test result' };
     }
   }
 
   // Get test statistics
-  static async getTestStatistics(): Promise<{ stats: any; error: string | null }> {
+  static async getTestStatistics(): Promise<{ stats: { totalUsers: number; totalTests: number; usersWithTests: number; completionRate: string | number } | null; error: string | null }> {
     try {
       // Get total users
       const { count: totalUsers, error: usersError } = await supabase
@@ -184,7 +184,7 @@ export class AdminService {
         },
         error: null
       };
-    } catch (error) {
+    } catch {
       return { stats: null, error: 'Failed to fetch statistics' };
     }
   }

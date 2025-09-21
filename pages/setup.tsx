@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { DatabaseSetup } from '@/lib/database/setup';
 import { Button } from '@/components/ui/button';
 
@@ -81,12 +82,12 @@ export default function SetupPage() {
           )}
 
           <div className="text-center">
-            <a
+            <Link
               href="/"
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Back to Login
-            </a>
+            </Link>
           </div>
         </div>
       </div>

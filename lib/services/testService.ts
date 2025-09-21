@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import { TestQuestion, TestOption, QuestionWithOptions, UserTestResponse, TestSession, TestResponse } from '@/lib/types/test';
+import { QuestionWithOptions, TestSession, TestResponse } from '@/lib/types/test';
 
 export class TestService {
   // Fetch all test questions with their options
@@ -38,7 +38,7 @@ export class TestService {
       }));
 
       return { questions: questionsWithOptions, error: null };
-    } catch (error) {
+    } catch {
       return { questions: [], error: 'Failed to fetch test questions' };
     }
   }
@@ -81,7 +81,7 @@ export class TestService {
       }
 
       return { success: true, error: null, sessionId: session.id };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Failed to submit test responses' };
     }
   }
@@ -100,7 +100,7 @@ export class TestService {
       }
 
       return { sessions: sessions || [], error: null };
-    } catch (error) {
+    } catch {
       return { sessions: [], error: 'Failed to fetch test history' };
     }
   }
@@ -119,7 +119,7 @@ export class TestService {
       }
 
       return { hasTaken: (sessions && sessions.length > 0) || false, error: null };
-    } catch (error) {
+    } catch {
       return { hasTaken: false, error: 'Failed to check test status' };
     }
   }

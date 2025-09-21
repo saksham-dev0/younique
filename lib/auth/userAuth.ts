@@ -6,7 +6,7 @@ export class UserAuth {
   static async signup(data: SignupData): Promise<{ user: User | null; error: string | null }> {
     try {
       // Check if user already exists
-      const { data: existingUser, error: checkError } = await supabase
+      const { data: existingUser } = await supabase
         .from('users')
         .select('email')
         .eq('email', data.email)
@@ -32,7 +32,7 @@ export class UserAuth {
       }
 
       return { user: newUser, error: null };
-    } catch (error) {
+    } catch {
       return { user: null, error: 'An unexpected error occurred' };
     }
   }
@@ -52,7 +52,7 @@ export class UserAuth {
       }
 
       return { user, error: null };
-    } catch (error) {
+    } catch {
       return { user: null, error: 'An unexpected error occurred' };
     }
   }
@@ -65,7 +65,7 @@ export class UserAuth {
         return JSON.parse(userData);
       }
       return null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

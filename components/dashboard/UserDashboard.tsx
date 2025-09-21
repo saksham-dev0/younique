@@ -43,13 +43,13 @@ export const UserDashboard: React.FC = () => {
                 </h2>
                 <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
                   This test will help assess your task maturity level through 7 carefully designed questions. 
-                  You'll distribute 10 points across 8 options for each question based on what best describes you.
+                  You&apos;ll distribute 10 points across 8 options for each question based on what best describes you.
                 </p>
                 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
                   <h3 className="text-lg font-semibold text-blue-900 mb-2">Test Instructions</h3>
                   <ul className="text-blue-800 text-left space-y-2">
-                    <li>• You'll answer 7 questions about your work style and preferences</li>
+                    <li>• You&apos;ll answer 7 questions about your work style and preferences</li>
                     <li>• Each question has 8 options</li>
                     <li>• Distribute exactly 10 points across the options for each question</li>
                     <li>• You can give all 10 points to one option or spread them across multiple options</li>

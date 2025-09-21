@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { TestService } from '@/lib/services/testService';
 import { TestInterface } from '@/components/test/TestInterface';
@@ -18,9 +18,9 @@ export default function TestPage() {
     if (user) {
       checkTestStatus();
     }
-  }, [user]);
+  }, [user, checkTestStatus]);
 
-  const checkTestStatus = async () => {
+  const checkTestStatus = useCallback(async () => {
     if (!user) return;
 
     setTestState('checking');
@@ -40,11 +40,11 @@ export default function TestPage() {
         // User can take the test
         setTestState('test');
       }
-    } catch (error) {
+    } catch {
       setError('Failed to check test status');
       setTestState('error');
     }
-  };
+  }, [user]);
 
   const handleTestComplete = () => {
     setTestState('complete');

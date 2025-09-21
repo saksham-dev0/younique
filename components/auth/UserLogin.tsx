@@ -140,7 +140,7 @@ export const UserLogin: React.FC<UserLoginProps> = ({ onSwitchToSignup, onSwitch
                 onClick={onSwitchToSignup}
                 className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors duration-200"
               >
-                Don't have an account? Sign up
+                Don&apos;t have an account? Sign up
               </button>
               <button
                 type="button"

@@ -41,7 +41,7 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({ onTestComplete }) 
         });
       });
       setResponses(initialResponses);
-    } catch (error) {
+    } catch {
       setError('Failed to load test questions');
     } finally {
       setLoading(false);
@@ -112,7 +112,7 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({ onTestComplete }) 
       } else {
         setError(error || 'Failed to submit test');
       }
-    } catch (error) {
+    } catch {
       setError('An unexpected error occurred');
     } finally {
       setSubmitting(false);

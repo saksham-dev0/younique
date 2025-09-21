@@ -40,7 +40,7 @@ export class AdminAuth {
         return JSON.parse(adminData);
       }
       return null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }

@@ -1,5 +1,5 @@
 import { supabase } from '../supabase/client';
-import { RangeDetermination, RangeResponse, DimensionResult, DetailedTestResult } from '../types/range';
+import { RangeDetermination, DimensionResult, DetailedTestResult } from '../types/range';
 
 export class RangeAnalysisService {
   static async analyzeTestResults(userId: string): Promise<{ result: DetailedTestResult; error: string | null }> {
@@ -125,7 +125,7 @@ export class RangeAnalysisService {
         stack: error instanceof Error ? error.stack : 'No stack trace',
         error: error
       });
-      return { result: null as any, error: error instanceof Error ? error.message : `Unknown error: ${JSON.stringify(error)}` };
+      return { result: null as unknown as DetailedTestResult, error: error instanceof Error ? error.message : `Unknown error: ${JSON.stringify(error)}` };
     }
   }
 
@@ -243,13 +243,13 @@ export class RangeAnalysisService {
     const columnTotals = new Array(8).fill(0);
     
     // Group responses by question
-    const responsesByQuestion = responses.reduce((acc, response) => {
+    const responsesByQuestion: Record<number, Array<{question_id: number; option_id: number; points: number}>> = responses.reduce((acc, response) => {
       if (!acc[response.question_id]) {
         acc[response.question_id] = [];
       }
       acc[response.question_id].push(response);
       return acc;
-    }, {});
+    }, {} as Record<number, Array<{question_id: number; option_id: number; points: number}>>);
 
     console.log('Responses grouped by question:', responsesByQuestion);
 
@@ -259,10 +259,10 @@ export class RangeAnalysisService {
       console.log(`\nProcessing Question ${questionId}:`, questionResponses);
       
       // Sort responses by option_id to ensure consistent order
-      questionResponses.sort((a, b) => a.option_id - b.option_id);
+      questionResponses.sort((a: {option_id: number}, b: {option_id: number}) => a.option_id - b.option_id);
       
       // Add points to each column based on option order
-      questionResponses.forEach((response, index) => {
+      questionResponses.forEach((response: {option_id: number; points: number}, index: number) => {
         if (index < 8) { // Only process first 8 options
           columnTotals[index] += response.points;
           console.log(`  Option ${response.option_id} (position ${index}): ${response.points} points -> Column ${index} total: ${columnTotals[index]}`);

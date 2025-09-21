@@ -1,25 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { UserTestResult } from '@/lib/services/adminService';
 import { RangeAnalysisService } from '@/lib/services/rangeAnalysisService';
-import { DetailedTestResult, DimensionResult } from '@/lib/types/range';
+import { DetailedTestResult } from '@/lib/types/range';
 
 interface DetailedTestResultsProps {
   result: UserTestResult;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
-export const DetailedTestResults: React.FC<DetailedTestResultsProps> = ({ result, onClose }) => {
+export const DetailedTestResults: React.FC<DetailedTestResultsProps> = ({ result }) => {
   const [detailedResult, setDetailedResult] = useState<DetailedTestResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    analyzeResults();
-  }, [result]);
-
-  const analyzeResults = async () => {
+  const analyzeResults = useCallback(async () => {
     try {
       console.log('Starting analysis for user:', result.user.id);
       setLoading(true);
@@ -43,7 +39,11 @@ export const DetailedTestResults: React.FC<DetailedTestResultsProps> = ({ result
     } finally {
       setLoading(false);
     }
-  };
+  }, [result.user.id]);
+
+  useEffect(() => {
+    analyzeResults();
+  }, [analyzeResults]);
 
   const getRangeColor = (range: string) => {
     switch (range) {

@@ -70,7 +70,7 @@ export class DatabaseSetup {
   // Test database connection
   static async testConnection(): Promise<{ success: boolean; error?: string }> {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('admin')
         .select('count')
         .limit(1);
@@ -80,7 +80,7 @@ export class DatabaseSetup {
       }
 
       return { success: true };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Connection test failed' };
     }
   }

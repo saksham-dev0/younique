@@ -31,7 +31,7 @@ export const TestComplete: React.FC<TestCompleteProps> = ({ onBackToDashboard })
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-            <h3 className="text-lg font-semibold text-blue-900 mb-2">What's Next?</h3>
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">What&apos;s Next?</h3>
             <ul className="text-blue-800 text-left space-y-2">
               <li>• Your responses have been recorded and analyzed</li>
               <li>• The admin can now view your test results</li>

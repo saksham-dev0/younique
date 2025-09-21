@@ -14,7 +14,7 @@ export const AdminDashboard: React.FC = () => {
   const [showDetailedResults, setShowDetailedResults] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<{ totalUsers: number; totalTests: number; usersWithTests: number; completionRate: string | number } | null>(null);
 
   useEffect(() => {
     loadDashboardData();
