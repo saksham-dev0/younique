@@ -14,12 +14,6 @@ export default function TestPage() {
   const [testState, setTestState] = useState<TestState>('loading');
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      checkTestStatus();
-    }
-  }, [user, checkTestStatus]);
-
   const checkTestStatus = useCallback(async () => {
     if (!user) return;
 
@@ -45,6 +39,12 @@ export default function TestPage() {
       setTestState('error');
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      checkTestStatus();
+    }
+  }, [user, checkTestStatus]);
 
   const handleTestComplete = () => {
     setTestState('complete');
