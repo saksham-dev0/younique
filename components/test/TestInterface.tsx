@@ -229,7 +229,7 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({ onTestComplete }) 
                       max="10"
                       value={responses[currentQuestion.id]?.[option.id] || 0}
                       onChange={(e) => handlePointChange(currentQuestion.id, option.id, e.target.value)}
-                      className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-20 px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
                 </div>
