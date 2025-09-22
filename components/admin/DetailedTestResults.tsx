@@ -15,6 +15,37 @@ export const DetailedTestResults: React.FC<DetailedTestResultsProps> = ({ result
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Per-dimension thresholds (display only)
+  const getThresholds = (dimensionName: string) => {
+    const map: Record<string, { low: string; avg: string; high: string }> = {
+      'Task receptivity orientation': {
+        low: '>7 to 8', avg: '10–13', high: '14 to ≥17'
+      },
+      'Task ownership orientation': {
+        low: '>7 to 8', avg: '9–11', high: '12 to ≥14'
+      },
+      'Values spending time to shape tasks': {
+        low: '>5 to 8', avg: '9–11', high: '12 to ≥14'
+      },
+      'Puts task in reality context': {
+        low: '>3 to 5', avg: '6–8', high: '9 to ≥12'
+      },
+      'Prepares for resources before hand': {
+        low: '>4 to 5', avg: '6–8', high: '9 to ≥11'
+      },
+      'Sets milestones and measures for critical stages of task': {
+        low: '>6 to 7', avg: '8–10', high: '11 to ≥13'
+      },
+      'Sets teams around tasks': {
+        low: '>5 to 6', avg: '7–10', high: '11 to ≥13'
+      },
+      'Focus on completion of tasks': {
+        low: '>4 to 6', avg: '7–10', high: '11 to ≥13'
+      },
+    };
+    return map[dimensionName];
+  };
+
   const analyzeResults = useCallback(async () => {
     try {
       console.log('Starting analysis for user:', result.user.id);
@@ -199,10 +230,24 @@ export const DetailedTestResults: React.FC<DetailedTestResultsProps> = ({ result
                 <div className="bg-slate-50 p-5 rounded-xl border border-slate-200">
                   <h5 className="font-bold text-slate-900 mb-3 text-lg">Range Response:</h5>
                   <p className="text-slate-800 leading-relaxed font-medium">
-                    {dimension.range === 'High' && "You demonstrate excellent performance in this dimension. Your high scores indicate strong capabilities and effective task management skills."}
-                    {dimension.range === 'Average' && "You show moderate performance in this dimension. There's room for improvement to reach higher levels of effectiveness."}
-                    {dimension.range === 'Low' && "This dimension requires attention and development. Consider focusing on building skills in this area to improve overall task maturity."}
+                    {dimension.range === 'High' && (`You are consistently strong in ${dimension.dimensionName}. Maintain these habits and consider mentoring others to amplify impact.`)}
+                    {dimension.range === 'Average' && (`You are moderately strong in ${dimension.dimensionName}. With focused practice, you can move into the high range.`)}
+                    {dimension.range === 'Low' && (`Your ${dimension.dimensionName} needs attention. Prioritize building routines and safeguards to raise this area.`)}
                   </p>
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="bg-white border border-slate-200 rounded-lg p-3">
+                      <p className="text-xs font-semibold text-slate-600">Low</p>
+                      <p className="text-sm font-bold text-red-700">{getThresholds(dimension.dimensionName)?.low || '—'}</p>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded-lg p-3">
+                      <p className="text-xs font-semibold text-slate-600">Average</p>
+                      <p className="text-sm font-bold text-yellow-700">{getThresholds(dimension.dimensionName)?.avg || '—'}</p>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded-lg p-3">
+                      <p className="text-xs font-semibold text-slate-600">High</p>
+                      <p className="text-sm font-bold text-green-700">{getThresholds(dimension.dimensionName)?.high || '—'}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -211,38 +256,36 @@ export const DetailedTestResults: React.FC<DetailedTestResultsProps> = ({ result
           {/* Range Legend */}
           <div className="mt-8 bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
             <h3 className="text-xl font-bold text-slate-900 mb-6">Range Legend</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-6 h-6 bg-red-100 border-2 border-red-300 rounded-lg"></div>
-                <div>
-                  <p className="font-bold text-slate-900">Low (Columns 1-2)</p>
-                  <p className="text-sm text-slate-700 font-medium">Scores that fall in the low range values</p>
+            <p className="text-slate-800 font-medium leading-relaxed mb-4">Ranges differ by dimension. Reference thresholds are shown on each card:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                'Task receptivity orientation',
+                'Task ownership orientation',
+                'Values spending time to shape tasks',
+                'Puts task in reality context',
+                'Prepares for resources before hand',
+                'Sets milestones and measures for critical stages of task',
+                'Sets teams around tasks',
+                'Focus on completion of tasks',
+              ].map((name) => (
+                <div key={name} className="bg-white border border-slate-200 rounded-lg p-4">
+                  <p className="font-bold text-slate-900 mb-2">{name}</p>
+                  <div className="text-sm grid grid-cols-3 gap-3">
+                    <div>
+                      <p className="text-xs font-semibold text-slate-600">Low</p>
+                      <p className="font-bold text-red-700">{getThresholds(name)?.low || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-600">Average</p>
+                      <p className="font-bold text-yellow-700">{getThresholds(name)?.avg || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-600">High</p>
+                      <p className="font-bold text-green-700">{getThresholds(name)?.high || '—'}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-6 h-6 bg-yellow-100 border-2 border-yellow-300 rounded-lg"></div>
-                <div>
-                  <p className="font-bold text-slate-900">Average (Columns 3-5)</p>
-                  <p className="text-sm text-slate-700 font-medium">Scores that fall in the average range values</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-6 h-6 bg-green-100 border-2 border-green-300 rounded-lg"></div>
-                <div>
-                  <p className="font-bold text-slate-900">High (Columns 6-7)</p>
-                  <p className="text-sm text-slate-700 font-medium">Scores that fall in the high range values</p>
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
-              <h4 className="font-bold text-slate-900 mb-3 text-lg">How it works:</h4>
-              <p className="text-slate-800 font-medium leading-relaxed">
-                Each dimension has specific score ranges: 
-                <br />• <strong>Low (Columns 1-2):</strong> Scores &gt;=7 and 8-9
-                <br />• <strong>Average (Columns 3-5):</strong> Scores 10 to 13  
-                <br />• <strong>High (Columns 6-7):</strong> Scores 14 to &lt;=17
-                <br />Your score is matched against these ranges to determine the performance level.
-              </p>
+              ))}
             </div>
           </div>
         </div>

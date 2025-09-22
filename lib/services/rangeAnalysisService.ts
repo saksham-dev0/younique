@@ -39,22 +39,79 @@ export class RangeAnalysisService {
         'Puts task in reality context',
         'Prepares for resources before hand',
         'Sets milestones and measures for critical stages of task',
-        'Sets teams around tasks'
+        'Sets teams around tasks',
+        'Focus on completion of tasks'
       ];
 
-      // HARDCODED RANGE LOGIC
-      const getRangeForScore = (score: number): { range: 'Low' | 'Average' | 'High', rangeValue: string, column: number } => {
-        if (score >= 7 && score <= 9) {
-          return { range: 'Low', rangeValue: '7-9', column: 1 };
-        } else if (score >= 10 && score <= 13) {
-          return { range: 'Average', rangeValue: '10-13', column: 3 };
-        } else if (score >= 14 && score <= 17) {
-          return { range: 'High', rangeValue: '14-17', column: 6 };
-        } else if (score < 7) {
-          return { range: 'Low', rangeValue: '<7', column: 1 };
-        } else {
-          return { range: 'High', rangeValue: '>17', column: 7 };
+      // Per-dimension range thresholds based on provided conditions
+      // Logic: if score >= highMin => High; else if avgMin <= score <= avgMax => Average; else => Low
+      const perDimensionThresholds: Record<string, { lowLabel: string; avgLabel: string; highLabel: string; avgMin: number; avgMax: number; highMin: number }> = {
+        'Task receptivity orientation': {
+          lowLabel: '>7 to 8',
+          avgLabel: '10–13',
+          highLabel: '14 to ≥17',
+          avgMin: 10, avgMax: 13, highMin: 14,
+        },
+        'Task ownership orientation': {
+          lowLabel: '>7 to 8',
+          avgLabel: '9–11',
+          highLabel: '12 to ≥14',
+          avgMin: 9, avgMax: 11, highMin: 12,
+        },
+        'Values spending time to shape tasks': {
+          lowLabel: '>5 to 8',
+          avgLabel: '9–11',
+          highLabel: '12 to ≥14',
+          avgMin: 9, avgMax: 11, highMin: 12,
+        },
+        'Puts task in reality context': {
+          lowLabel: '>3 to 5',
+          avgLabel: '6–8',
+          highLabel: '9 to ≥12',
+          avgMin: 6, avgMax: 8, highMin: 9,
+        },
+        'Prepares for resources before hand': {
+          lowLabel: '>4 to 5',
+          avgLabel: '6–8',
+          highLabel: '9 to ≥11',
+          avgMin: 6, avgMax: 8, highMin: 9,
+        },
+        'Sets milestones and measures for critical stages of task': {
+          lowLabel: '>6 to 7',
+          avgLabel: '8–10',
+          highLabel: '11 to ≥13',
+          avgMin: 8, avgMax: 10, highMin: 11,
+        },
+        'Sets teams around tasks': {
+          lowLabel: '>5 to 6',
+          avgLabel: '7–10',
+          highLabel: '11 to ≥13',
+          avgMin: 7, avgMax: 10, highMin: 11,
+        },
+        'Focus on completion of tasks': {
+          lowLabel: '>4 to 6',
+          avgLabel: '7–10',
+          highLabel: '11 to ≥13',
+          avgMin: 7, avgMax: 10, highMin: 11,
+        },
+      };
+
+      // Range determination using per-dimension thresholds
+      const getRangeForScore = (score: number, dimensionName: string): { range: 'Low' | 'Average' | 'High', rangeValue: string, column: number } => {
+        const t = perDimensionThresholds[dimensionName];
+        if (!t) {
+          // Fallback to generic mapping if not found
+          if (score >= 14) return { range: 'High', rangeValue: '≥14', column: 6 };
+          if (score >= 10) return { range: 'Average', rangeValue: '10–13', column: 3 };
+          return { range: 'Low', rangeValue: '<10', column: 1 };
         }
+        if (score >= t.highMin) {
+          return { range: 'High', rangeValue: t.highLabel, column: 6 };
+        }
+        if (score >= t.avgMin && score <= t.avgMax) {
+          return { range: 'Average', rangeValue: t.avgLabel, column: 3 };
+        }
+        return { range: 'Low', rangeValue: t.lowLabel, column: 1 };
       };
 
       // Create dimension results with test scores
@@ -62,11 +119,12 @@ export class RangeAnalysisService {
       
       for (let i = 0; i < dimensions.length; i++) {
         // Use a simple test score for now
-        const testScore = (i + 1) * 2; // 2, 4, 6, 8, 10, 12, 14
-        const { range, rangeValue, column } = getRangeForScore(testScore);
+        const testScore = (i + 1) * 2; // 2, 4, 6, 8, 10, 12, 14, 16
+        const dimensionName = dimensions[i];
+        const { range, rangeValue, column } = getRangeForScore(testScore, dimensionName);
         
         dimensionResults.push({
-          dimensionName: dimensions[i],
+          dimensionName,
           score: testScore,
           column,
           range,
