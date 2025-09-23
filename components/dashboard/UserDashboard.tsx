@@ -33,6 +33,11 @@ export const UserDashboard: React.FC = () => {
     window.location.href = '/test';
   };
 
+  const handleRetakeTest = () => {
+    // Pass a retake flag so the test page can reset previous responses
+    window.location.href = '/test?retake=1';
+  };
+
   const handleViewResults = () => {
     window.location.href = '/results';
   };
@@ -107,7 +112,7 @@ export const UserDashboard: React.FC = () => {
                       View My Results
                     </Button>
                     <Button
-                      onClick={handleTakeTest}
+                      onClick={handleRetakeTest}
                       size="lg"
                       variant="outline"
                       className="px-8 py-3 text-lg"

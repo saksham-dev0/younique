@@ -24,14 +24,14 @@ export class RangeAnalysisService {
         throw new Error('No test results found');
       }
 
-      // SIMPLE APPROACH - JUST USE THE ACTUAL RESPONSES
+      // Use the actual responses
       console.log('User responses:', userResults);
       
       // Calculate total score from all responses
-      const totalScore = userResults.reduce((sum, response) => sum + response.points, 0);
+      const totalScore = userResults.reduce((sum, response: any) => sum + (response.points ?? 0), 0);
       console.log('Total score from responses:', totalScore);
       
-      // Create simple dimension results with hardcoded scores for testing
+      // Dimension names (match the order of 8 columns)
       const dimensions = [
         'Task receptivity orientation',
         'Task ownership orientation', 
@@ -114,23 +114,88 @@ export class RangeAnalysisService {
         return { range: 'Low', rangeValue: t.lowLabel, column: 1 };
       };
 
-      // Create dimension results with test scores
-      const dimensionResults: DimensionResult[] = [];
-      
-      for (let i = 0; i < dimensions.length; i++) {
-        // Use a simple test score for now
-        const testScore = (i + 1) * 2; // 2, 4, 6, 8, 10, 12, 14, 16
-        const dimensionName = dimensions[i];
-        const { range, rangeValue, column } = getRangeForScore(testScore, dimensionName);
-        
-        dimensionResults.push({
+      // Build mapping from option_id to points for fast lookup
+      const optionIdToPoints = new Map<string, number>();
+      (userResults as Array<{ option_id: string; points: number }>).forEach(r => {
+        optionIdToPoints.set(String(r.option_id), r.points ?? 0);
+      });
+
+      // Fetch questions and their options to reconstruct the same mapping used in the admin table
+      const { data: questions, error: questionsError } = await supabase
+        .from('test_questions')
+        .select('id, question_order')
+        .order('question_order', { ascending: true });
+
+      if (questionsError) {
+        throw questionsError;
+      }
+
+      const questionIds = (questions ?? []).map((q: any) => q.id);
+      const { data: options, error: optionsError } = await supabase
+        .from('test_options')
+        .select('id, question_id, option_order')
+        .in('question_id', questionIds)
+        .order('option_order', { ascending: true });
+
+      if (optionsError) {
+        throw optionsError;
+      }
+
+      // Create a lookup of questionId -> options[] sorted by option_order (A..H)
+      const optionsByQuestion = new Map<string, Array<{ id: string; option_order: number }>>();
+      (options ?? []).forEach((opt: any) => {
+        const key = String(opt.question_id);
+        if (!optionsByQuestion.has(key)) optionsByQuestion.set(key, []);
+        optionsByQuestion.get(key)!.push({ id: String(opt.id), option_order: opt.option_order });
+      });
+
+      // Ensure each question's options are sorted
+      optionsByQuestion.forEach(arr => arr.sort((a, b) => (a.option_order ?? 0) - (b.option_order ?? 0)));
+
+      // Option mapping per question (positions -> letter A-H) copied from admin table
+      const optionMapping: string[][] = [
+        ['G', 'D', 'F', 'C', 'A', 'H', 'B', 'E'], // Question I
+        ['A', 'B', 'E', 'G', 'C', 'D', 'F', 'H'], // Question II
+        ['H', 'A', 'C', 'D', 'F', 'G', 'E', 'B'], // Question III
+        ['D', 'H', 'B', 'E', 'G', 'C', 'A', 'F'], // Question IV
+        ['B', 'F', 'D', 'H', 'E', 'A', 'C', 'G'], // Question V
+        ['F', 'C', 'G', 'A', 'H', 'E', 'B', 'D'], // Question VI
+        ['E', 'G', 'A', 'F', 'D', 'B', 'H', 'C']  // Question VII
+      ];
+
+      // Compute column totals (8 columns)
+      const columnTotals = new Array(8).fill(0);
+
+      (questions ?? []).forEach((q: any, qIndex: number) => {
+        if (qIndex >= optionMapping.length) return;
+        const letters = optionMapping[qIndex];
+        const opts = optionsByQuestion.get(String(q.id)) ?? [];
+        // opts are A..H by option_order 1..8 -> index 0..7
+        for (let position = 0; position < 8; position++) {
+          const letter = letters[position];
+          const optionIndex = letter.charCodeAt(0) - 65; // A=0..H=7
+          const option = opts[optionIndex];
+          if (option) {
+            const pts = optionIdToPoints.get(String(option.id)) ?? 0;
+            columnTotals[position] += pts;
+          }
+        }
+      });
+
+      console.log('Computed column totals:', columnTotals);
+
+      // Create dimension results using computed column totals
+      const dimensionResults: DimensionResult[] = columnTotals.map((score, idx) => {
+        const dimensionName = dimensions[idx] ?? `Dimension ${idx + 1}`;
+        const { range, rangeValue, column } = getRangeForScore(score, dimensionName);
+        return {
           dimensionName,
-          score: testScore,
+          score,
           column,
           range,
           rangeValue
-        });
-      }
+        };
+      });
 
       // Get user data
       const { data: user, error: userDataError } = await supabase
@@ -164,7 +229,7 @@ export class RangeAnalysisService {
         user,
         session,
         responses: userResults,
-        questions: [], // We don't need questions for detailed analysis
+        questions: [],
         totalScore: totalScore, // Use the actual total score from responses
         maxPossibleScore: 70, // 7 questions × 10 points each
         completionRate: 100, // Assuming all questions answered

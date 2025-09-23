@@ -14,12 +14,31 @@ export default function TestPage() {
   const { user } = useAuth();
   const [testState, setTestState] = useState<TestState>('loading');
   const [error, setError] = useState<string | null>(null);
+  const [retakeRequested, setRetakeRequested] = useState<boolean>(false);
+
+  // Detect retake flag from query string
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setRetakeRequested(params.get('retake') === '1');
+    }
+  }, []);
 
   const checkTestStatus = useCallback(async () => {
     if (!user) return;
 
     setTestState('checking');
     try {
+      // If retake, clear previous responses so user can take a fresh test
+      if (retakeRequested) {
+        const { success, error: resetError } = await TestService.resetUserResponses(user.id);
+        if (!success) {
+          setError(resetError || 'Failed to reset previous responses');
+          setTestState('error');
+          return;
+        }
+      }
+
       const { hasTaken, error } = await TestService.hasUserTakenTest(user.id);
       
       if (error) {
@@ -28,7 +47,7 @@ export default function TestPage() {
         return;
       }
 
-      if (hasTaken) {
+      if (hasTaken && !retakeRequested) {
         // User has already taken the test, show detailed results
         setTestState('results');
       } else {
@@ -39,7 +58,7 @@ export default function TestPage() {
       setError('Failed to check test status');
       setTestState('error');
     }
-  }, [user]);
+  }, [user, retakeRequested]);
 
   useEffect(() => {
     if (user) {

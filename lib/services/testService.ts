@@ -43,6 +43,24 @@ export class TestService {
     }
   }
 
+  // Reset a user's previous responses to allow a fresh retake
+  static async resetUserResponses(userId: string): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { error } = await supabase
+        .from('user_test_responses')
+        .delete()
+        .eq('user_id', userId);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, error: null };
+    } catch {
+      return { success: false, error: 'Failed to reset user responses' };
+    }
+  }
+
   // Submit test responses
   static async submitTestResponses(
     userId: string, 
