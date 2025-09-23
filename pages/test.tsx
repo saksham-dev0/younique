@@ -5,9 +5,10 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import { TestService } from '@/lib/services/testService';
 import { TestInterface } from '@/components/test/TestInterface';
 import { TestComplete } from '@/components/test/TestComplete';
+import { UserDetailedResults } from '@/components/test/UserDetailedResults';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
-type TestState = 'loading' | 'checking' | 'test' | 'complete' | 'error';
+type TestState = 'loading' | 'checking' | 'test' | 'complete' | 'results' | 'error';
 
 export default function TestPage() {
   const { user } = useAuth();
@@ -28,8 +29,8 @@ export default function TestPage() {
       }
 
       if (hasTaken) {
-        // User has already taken the test, show completion page
-        setTestState('complete');
+        // User has already taken the test, show detailed results
+        setTestState('results');
       } else {
         // User can take the test
         setTestState('test');
@@ -47,7 +48,7 @@ export default function TestPage() {
   }, [user, checkTestStatus]);
 
   const handleTestComplete = () => {
-    setTestState('complete');
+    setTestState('results');
   };
 
   const handleBackToDashboard = () => {
@@ -91,6 +92,9 @@ export default function TestPage() {
       )}
       {testState === 'complete' && (
         <TestComplete onBackToDashboard={handleBackToDashboard} />
+      )}
+      {testState === 'results' && (
+        <UserDetailedResults onBackToDashboard={handleBackToDashboard} />
       )}
     </ProtectedRoute>
   );
