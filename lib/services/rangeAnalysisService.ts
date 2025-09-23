@@ -1,5 +1,6 @@
 import { supabase } from '../supabase/client';
 import { RangeDetermination, DimensionResult, DetailedTestResult } from '../types/range';
+import type { TestQuestion, TestOption } from '../types/test';
 
 export class RangeAnalysisService {
   static async analyzeTestResults(userId: string): Promise<{ result: DetailedTestResult; error: string | null }> {
@@ -28,7 +29,7 @@ export class RangeAnalysisService {
       console.log('User responses:', userResults);
       
       // Calculate total score from all responses
-      const totalScore = userResults.reduce((sum, response: any) => sum + (response.points ?? 0), 0);
+      const totalScore = userResults.reduce((sum: number, response: { points: number }) => sum + (response.points ?? 0), 0);
       console.log('Total score from responses:', totalScore);
       
       // Dimension names (match the order of 8 columns)
@@ -116,7 +117,7 @@ export class RangeAnalysisService {
 
       // Build mapping from option_id to points for fast lookup
       const optionIdToPoints = new Map<string, number>();
-      (userResults as Array<{ option_id: string; points: number }>).forEach(r => {
+      (userResults as Array<{ option_id: string; points: number }>).forEach((r: { option_id: string; points: number }) => {
         optionIdToPoints.set(String(r.option_id), r.points ?? 0);
       });
 
@@ -130,7 +131,7 @@ export class RangeAnalysisService {
         throw questionsError;
       }
 
-      const questionIds = (questions ?? []).map((q: any) => q.id);
+      const questionIds = (questions ?? []).map((q: Pick<TestQuestion, 'id' | 'question_order'>) => q.id);
       const { data: options, error: optionsError } = await supabase
         .from('test_options')
         .select('id, question_id, option_order')
@@ -143,7 +144,7 @@ export class RangeAnalysisService {
 
       // Create a lookup of questionId -> options[] sorted by option_order (A..H)
       const optionsByQuestion = new Map<string, Array<{ id: string; option_order: number }>>();
-      (options ?? []).forEach((opt: any) => {
+      (options ?? []).forEach((opt: Pick<TestOption, 'id' | 'question_id' | 'option_order'>) => {
         const key = String(opt.question_id);
         if (!optionsByQuestion.has(key)) optionsByQuestion.set(key, []);
         optionsByQuestion.get(key)!.push({ id: String(opt.id), option_order: opt.option_order });
@@ -166,7 +167,7 @@ export class RangeAnalysisService {
       // Compute column totals (8 columns)
       const columnTotals = new Array(8).fill(0);
 
-      (questions ?? []).forEach((q: any, qIndex: number) => {
+      (questions ?? []).forEach((q: Pick<TestQuestion, 'id' | 'question_order'>, qIndex: number) => {
         if (qIndex >= optionMapping.length) return;
         const letters = optionMapping[qIndex];
         const opts = optionsByQuestion.get(String(q.id)) ?? [];
