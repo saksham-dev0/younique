@@ -106,11 +106,11 @@ export default function ResultsPage() {
             </h2>
             
             <p className="text-lg text-gray-600 mb-6">
-              You haven't taken the Task Maturity Test yet. Take the test first to see your detailed results and analysis.
+              You haven&apos;t taken the Task Maturity Test yet. Take the test first to see your detailed results and analysis.
             </p>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">What You'll Get</h3>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">What You&apos;ll Get</h3>
               <ul className="text-blue-800 text-left space-y-2">
                 <li>• Detailed analysis of your task maturity dimensions</li>
                 <li>• Performance insights and recommendations</li>

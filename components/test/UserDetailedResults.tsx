@@ -282,7 +282,7 @@ export const UserDetailedResults: React.FC<UserDetailedResultsProps> = ({ onBack
             {/* Range Legend */}
             <div className="mt-8 bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
               <h3 className="text-xl font-bold text-slate-900 mb-6">Understanding Your Results</h3>
-              <p className="text-slate-800 font-medium leading-relaxed mb-4">Each dimension has different scoring ranges. Here's what they mean:</p>
+              <p className="text-slate-800 font-medium leading-relaxed mb-4">Each dimension has different scoring ranges. Here&apos;s what they mean:</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
                   'Task receptivity orientation',
